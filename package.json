@@ -10,6 +10,6 @@
     "pegjs": "^0.10.0"
   },
   "scripts": {
-    "build": "pegjs -o lib/java.js src/java.pegjs && minify lib/java.js && cp lib/java.min.js pegjs-java.js"
+    "build": "pegjs -o lib/java.js src/java.peg.js && minify lib/java.js && cp lib/java.min.js pegjs-java.js"
   }
 }
