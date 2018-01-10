@@ -1,0 +1,15 @@
+{
+  "name": "pegjs-java",
+  "version": "0.0.2",
+  "description": "Java parser based on pegjs grammar",
+  "main": "pegjs-java.js",
+  "author": "Thorben von Hacht <thorben@vh8.de> (https://twitter.com/thorbenvh8)",
+  "license": "MIT",
+  "dependencies": {
+    "minifier": "^0.8.1",
+    "pegjs": "^0.10.0"
+  },
+  "scripts": {
+    "build": "pegjs -o lib/java.js src/java.pegjs && minify lib/java.js && cp lib/java.min.js pegjs-java.js"
+  }
+}
