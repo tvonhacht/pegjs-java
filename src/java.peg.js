@@ -110,6 +110,13 @@
 //    2013-04-23 Updated Mouse version in the comment.
 //               Corrected spelling in a comment to IdentifierSuffix.
 //
+//---------------------------------------------------------------------------
+//    Updates based on the new Java Language Specifications
+//    (SE8 Edition)
+//---------------------------------------------------------------------------
+//
+//    2018-01-13 Added empty generics on instance creation.
+//
 //===========================================================================
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1297,6 +1304,10 @@ NonWildcardTypeArguments
     = LPOINT first:ReferenceType rest:(COMMA ReferenceType)* RPOINT
     { return buildList(first, rest, 1); }
 
+EmptyWildcardTypeArguments
+    = LPOINT RPOINT
+    { return []; }
+
 TypeArgumentsOrDiamond
     = LPOINT RPOINT
     { return []; }
@@ -1400,12 +1411,12 @@ Creator
         dimensions:  rest.dimms
       }; 
     }
-    / args:NonWildcardTypeArguments? type:CreatedName rest:ClassCreatorRest
+    / args:(NonWildcardTypeArguments / EmptyWildcardTypeArguments)? type:CreatedName rest:ClassCreatorRest
     {
       return mergeProps(rest, {
         node:          'ClassInstanceCreation',
         type:           type,
-        typeArguments:  optionalList(args),
+        typeArguments:  args,
         expression:     null
       });
     }
