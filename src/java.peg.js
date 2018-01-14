@@ -966,6 +966,14 @@ Statement
     { return statement; }
     / Indent id:Identifier COLON statement:Statement
     { return { node: 'LabeledStatement', label: id, body: statement }; }
+    / Indent comment:EndOfLineComment
+    { return { node: "EndOfLineComment", comment: comment.value }; }
+    / Indent comment:TraditionalComment
+    { return { node: "TraditionalComment", comment: comment.value }; }
+    / Indent comment:JavaDocComment
+    { return { node: "JavaDocComment", comment: comment.value }; }
+    / Indent !LetterOrDigit [\r\n\u000C]
+    { return { node: "LineEmpty" }; }
 
 Resource
     = modifiers:(FINAL { return makeModifier('final'); } / Annotation)* type:Type decl:VariableDeclaratorId EQU expr:Expression
