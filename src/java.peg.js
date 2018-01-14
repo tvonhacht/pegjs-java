@@ -116,6 +116,8 @@
 //---------------------------------------------------------------------------
 //
 //    2018-01-13 Added empty generics on instance creation.
+//    2018-01-14 Added comments inside classes
+//    2018-01-14 Added empty lines inside classes
 //
 //===========================================================================
 
@@ -316,7 +318,7 @@
   function makeModifier(keyword) {
     return { 
       node:   'Modifier', 
-      keyword: keyword 
+      keyword: keyword
     };
   }
 
@@ -409,7 +411,7 @@
 //-------------------------------------------------------------------------
 
 CompilationUnit
-    = Spacing pack:PackageDeclaration? imports:ImportDeclaration* types:TypeDeclaration* EOT
+    = Spacing pack:PackageDeclaration? imports:ImportDeclaration* types:TypeDeclaration* EmptyLines EOT
     {
       return {
         node:   'CompilationUnit',
@@ -420,7 +422,7 @@ CompilationUnit
     }
 
 PackageDeclaration
-    = annot:Annotation* PACKAGE name:QualifiedIdentifier SEMI
+    = EmptyLines annot:Annotation* PACKAGE name:QualifiedIdentifier SEMI
     {
       return {
         node:       'PackageDeclaration',
@@ -430,7 +432,7 @@ PackageDeclaration
     }
 
 ImportDeclaration
-    = IMPORT stat:STATIC? name:QualifiedIdentifier asterisk:(DOT STAR)? SEMI
+    = EmptyLines IMPORT stat:STATIC? name:QualifiedIdentifier asterisk:(DOT STAR)? SEMI
     {
       return {
         node:    'ImportDeclaration',
@@ -446,7 +448,8 @@ ImportDeclaration
     // import declaration - which is not allowed according to JLS.
 
 TypeDeclaration
-    = modifiers:Modifier*
+    = EmptyLines
+      modifiers:Modifier*
       type:( 
           ClassDeclaration
         / EnumDeclaration
@@ -476,13 +479,13 @@ ClassDeclaration
     }
 
 ClassBody
-    = LWING decls:ClassBodyDeclaration* RWING
+    = LWING decls:ClassBodyDeclaration* Indent RWING
     { return skipNulls(decls); }
 
 ClassBodyDeclaration
-    = SEMI
+    = Indent SEMI
     { return null; }
-    / modifier:STATIC? body:Block                      // Static or Instance Initializer
+    / Indent modifier:STATIC? body:Block                      // Static or Instance Initializer
     {
       return {
         node:     'Initializer',
@@ -490,8 +493,16 @@ ClassBodyDeclaration
         modifiers: modifier === null ? [] : [makeModifier('static')]
       };
     }
-    / modifiers:Modifier* member:MemberDecl            // ClassMemberDeclaration
+    / Indent modifiers:Modifier* member:MemberDecl            // ClassMemberDeclaration
     { return mergeProps(member, { modifiers: modifiers }); }
+    / Indent comment:EndOfLineComment
+    { return { node: "EndOfLineComment", comment: comment.value }; }
+    / Indent comment:TraditionalComment
+    { return { node: "TraditionalComment", comment: comment.value }; }
+    / Indent comment:JavaDocComment
+    { return { node: "JavaDocComment", comment: comment.value }; }
+    / Indent !LetterOrDigit [\r\n\u000C]
+    { return { node: "LineEmpty" }; }
 
 MemberDecl
     = params:TypeParameters 
@@ -740,7 +751,7 @@ EnumConstants
     { return buildList(first, rest, 1); }
 
 EnumConstant
-    = annot:Annotation* name:Identifier args:Arguments? cls:ClassBody?
+    = EmptyLines Indent annot:Annotation* name:Identifier args:Arguments? cls:ClassBody?
     {
       return {
         node:                     'EnumConstantDeclaration',
@@ -763,7 +774,7 @@ EnumBodyDeclarations
 //-------------------------------------------------------------------------
 
 LocalVariableDeclarationStatement
-    = modifiers:(FINAL { return makeModifier('final'); } / Annotation)* 
+    = Indent modifiers:(FINAL { return makeModifier('final'); } / Annotation)* 
       type:Type decls:VariableDeclarators SEMI
     {
       return {
@@ -842,7 +853,7 @@ VariableDeclaratorId
 //-------------------------------------------------------------------------
 
 Block
-    = LWING statements:BlockStatements RWING
+    = LWING statements:BlockStatements Indent RWING
     { 
       return {
         node:      'Block',
@@ -855,7 +866,7 @@ BlockStatements
 
 BlockStatement
     = LocalVariableDeclarationStatement
-    / modifiers:Modifier* decl:( ClassDeclaration / EnumDeclaration )
+    / Indent modifiers:Modifier* decl:( ClassDeclaration / EnumDeclaration )
     { 
       return { 
         node:       'TypeDeclarationStatement', 
@@ -866,7 +877,7 @@ BlockStatement
 
 Statement
     = Block
-    / ASSERT expr:Expression message:(COLON Expression)? SEMI
+    / Indent ASSERT expr:Expression message:(COLON Expression)? SEMI
     { 
       return { 
         node:      'AssertStatement', 
@@ -874,7 +885,7 @@ Statement
         message:    extractOptional(message, 1)
       }; 
     }
-    / IF expr:ParExpression then:Statement alt:(ELSE Statement)?
+    / Indent IF expr:ParExpression then:Statement alt:(ELSE Statement)?
     { 
       return { 
         node:         'IfStatement', 
@@ -883,7 +894,7 @@ Statement
         expression:    expr.expression,   
       }; 
     }
-    / FOR LPAR init:ForInit? SEMI expr:Expression? SEMI up:ForUpdate? RPAR body:Statement
+    / Indent FOR LPAR init:ForInit? SEMI expr:Expression? SEMI up:ForUpdate? RPAR body:Statement
     { 
       return {
         node:        'ForStatement',
@@ -893,7 +904,7 @@ Statement
         body:         body
       };
     }
-    / FOR LPAR param:FormalParameter COLON expr:Expression RPAR statement:Statement
+    / Indent FOR LPAR param:FormalParameter COLON expr:Expression RPAR statement:Statement
     {       
       return {
         node:      'EnhancedForStatement',
@@ -902,7 +913,7 @@ Statement
         body:       statement
       }; 
     }
-    / WHILE expr:ParExpression body:Statement
+    / Indent WHILE expr:ParExpression body:Statement
     { 
       return { 
         node:      'WhileStatement', 
@@ -910,7 +921,7 @@ Statement
         body:       body 
       };
     }
-    / DO statement:Statement WHILE expr:ParExpression SEMI
+    / Indent DO statement:Statement WHILE expr:ParExpression SEMI
     { 
       return { 
         node:      'DoStatement', 
@@ -918,7 +929,7 @@ Statement
         body:       statement 
       };  
     }
-    / TRY LPAR first:Resource rest:(SEMI Resource)* SEMI? RPAR 
+    / Indent TRY LPAR first:Resource rest:(SEMI Resource)* SEMI? RPAR 
       body:Block cat:Catch* fin:Finally?
     { 
       return mergeProps(makeCatchFinally(cat, fin), {
@@ -927,7 +938,7 @@ Statement
         resources:    buildList(first, rest, 1)
       });
     }
-    / TRY body:Block 
+    / Indent TRY body:Block 
       rest:(cat:Catch+ fin:Finally? { return makeCatchFinally(cat, fin); } 
             / fin:Finally { return makeCatchFinally([], fin); })
     { 
@@ -937,23 +948,23 @@ Statement
         resources:    []
       });
     }
-    / SWITCH expr:ParExpression LWING cases:SwitchBlockStatementGroups RWING
+    / Indent SWITCH expr:ParExpression LWING cases:SwitchBlockStatementGroups RWING
     { return { node: 'SwitchStatement', statements: cases, expression: expr.expression }; }
-    / SYNCHRONIZED expr:ParExpression body:Block
+    / Indent SYNCHRONIZED expr:ParExpression body:Block
     { return { node: 'SynchronizedStatement', expression: expr.expression, body: body } }
-    / RETURN expr:Expression? SEMI
+    / Indent RETURN expr:Expression? SEMI
     { return { node: 'ReturnStatement', expression: expr } }
-    / THROW expr:Expression SEMI
+    / Indent THROW expr:Expression SEMI
     { return { node: 'ThrowStatement', expression: expr }; }
-    / BREAK id:Identifier? SEMI
+    / Indent BREAK id:Identifier? SEMI
     { return { node: 'BreakStatement', label: id }; }
-    / CONTINUE id:Identifier? SEMI
+    / Indent CONTINUE id:Identifier? SEMI
     { return { node: 'ContinueStatement', label: id }; }
-    / SEMI
+    / Indent SEMI
     { return { node: 'EmptyStatement' }; }
-    / statement:StatementExpression SEMI
+    / Indent statement:StatementExpression SEMI
     { return statement; }
-    / id:Identifier COLON statement:Statement
+    / Indent id:Identifier COLON statement:Statement
     { return { node: 'LabeledStatement', label: id, body: statement }; }
 
 Resource
@@ -1548,20 +1559,20 @@ Bound
 
 Modifier
     = Annotation
-    / keyword:( 
-        "public"
-      / "protected"
-      / "private"
-      / "static"
-      / "abstract"
-      / "final"
-      / "native"
-      / "synchronized"
-      / "transient"
-      / "volatile"
-      / "strictfp"
-      ) !LetterOrDigit Spacing
-    { return makeModifier(keyword); }
+      / Indent keyword:( 
+          "public"
+        / "protected"
+        / "private"
+        / "static"
+        / "abstract"
+        / "final"
+        / "native"
+        / "synchronized"
+        / "transient"
+        / "volatile"
+        / "strictfp"
+        ) !LetterOrDigit Spacing
+      { return makeModifier(keyword); }
 
     // This common definition of Modifier is part of the modification
     // in JLS Chapter 18 to minimize look ahead. The main body of JLS has
@@ -1627,7 +1638,7 @@ Annotation
     / MarkerAnnotation
 
 NormalAnnotation
-    = AT id:QualifiedIdentifier LPAR pairs:ElementValuePairs? RPAR
+    = Indent AT id:QualifiedIdentifier LPAR pairs:ElementValuePairs? Indent RPAR Spacing
     { 
       return { 
         node:    'NormalAnnotation', 
@@ -1637,7 +1648,7 @@ NormalAnnotation
     }
 
 SingleElementAnnotation
-    = AT id:QualifiedIdentifier LPAR value:ElementValue RPAR
+    = Indent AT id:QualifiedIdentifier LPAR value:ElementValue RPAR Spacing
     { 
       return { 
         node:    'SingleMemberAnnotation', 
@@ -1647,7 +1658,7 @@ SingleElementAnnotation
     }
 
 MarkerAnnotation
-    = AT id:QualifiedIdentifier
+    = Indent AT id:QualifiedIdentifier Spacing
     { return { node: 'MarkerAnnotation', typeName: id }; }
 
 ElementValuePairs
@@ -1655,7 +1666,7 @@ ElementValuePairs
     { return buildList(first, rest, 1); }
 
 ElementValuePair
-    = name:Identifier EQU value:ElementValue
+    = Indent name:Identifier EQU value:ElementValue
     { 
       return {
         node: 'MemberValuePair',
@@ -1697,11 +1708,40 @@ ElementValues
 //  JLS 3.6-7  Spacing
 //-------------------------------------------------------------------------
 
+Indent
+    = [ \t]*
+
 Spacing
-    = ( [ \t\r\n\u000C]+          // WhiteSpace
-      / "/*" (!"*/" _)* "*/"      // TraditionalComment
-      / "//" (![\r\n] _)* [\r\n]  // EndOfLineComment
-      )* ;
+    = Indent WhiteSpaces?
+       
+
+WhiteSpaces
+    = [\r\n\u000C]
+
+EmptyLines
+    = Indent WhiteSpaces*
+
+CommentStatement
+    = commentStatement:(
+       JavaDocComment
+       / TraditionalComment
+       / EndOfLineComment 
+      )
+    { return commentStatement; }
+
+JavaDocComment
+    = "/**" comment:CommentLetter* "*/"
+    { return { node: "javaDoc", ast_type: "comment", value: "/**" + comment.join("") + "*/", leading: false, trailing: true, printed: false }; }
+
+TraditionalComment
+    = "/*" comment:CommentLetter* "*/"
+    { return { node: "trad", ast_type: "comment", value: "/*" + comment.join("") + "*/", leading: false, trailing: true, printed: false }; }
+
+EndOfLineComment
+    = "//" comment:CommentLetter* [\r\n\u000C]
+    { return { ast_type: "comment", value: "//" + comment.join(""), leading: false, trailing: true, printed: false }; }
+
+CommentLetter = [ a-zA-Z0-9] ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.8  Identifiers
@@ -1785,38 +1825,38 @@ Keyword
       / "while"
       ) !LetterOrDigit
 
-ASSERT       = "assert"       !LetterOrDigit Spacing 
-BREAK        = "break"        !LetterOrDigit Spacing 
-CASE         = "case"         !LetterOrDigit Spacing 
-CATCH        = "catch"        !LetterOrDigit Spacing 
-CLASS        = "class"        !LetterOrDigit Spacing 
-CONTINUE     = "continue"     !LetterOrDigit Spacing 
-DEFAULT      = "default"      !LetterOrDigit Spacing 
-DO           = "do"           !LetterOrDigit Spacing 
-ELSE         = "else"         !LetterOrDigit Spacing 
-ENUM         = "enum"         !LetterOrDigit Spacing 
-EXTENDS      = "extends"      !LetterOrDigit Spacing 
-FINALLY      = "finally"      !LetterOrDigit Spacing 
-FINAL        = "final"        !LetterOrDigit Spacing 
-FOR          = "for"          !LetterOrDigit Spacing 
-IF           = "if"           !LetterOrDigit Spacing 
-IMPLEMENTS   = "implements"   !LetterOrDigit Spacing 
-IMPORT       = "import"       !LetterOrDigit Spacing 
-INTERFACE    = "interface"    !LetterOrDigit Spacing 
-INSTANCEOF   = "instanceof"   !LetterOrDigit Spacing 
-NEW          = "new"          !LetterOrDigit Spacing 
-PACKAGE      = "package"      !LetterOrDigit Spacing 
-RETURN       = "return"       !LetterOrDigit Spacing 
-STATIC       = "static"       !LetterOrDigit Spacing 
-SUPER        = "super"        !LetterOrDigit Spacing 
-SWITCH       = "switch"       !LetterOrDigit Spacing 
-SYNCHRONIZED = "synchronized" !LetterOrDigit Spacing 
-THIS         = "this"         !LetterOrDigit Spacing 
-THROWS       = "throws"       !LetterOrDigit Spacing 
-THROW        = "throw"        !LetterOrDigit Spacing 
-TRY          = "try"          !LetterOrDigit Spacing 
-VOID         = "void"         !LetterOrDigit Spacing 
-WHILE        = "while"        !LetterOrDigit Spacing 
+ASSERT       = Indent "assert"       !LetterOrDigit Spacing
+BREAK        = Indent "break"        !LetterOrDigit Spacing
+CASE         = Indent "case"         !LetterOrDigit Spacing
+CATCH        = Indent "catch"        !LetterOrDigit Spacing
+CLASS        = Indent "class"        !LetterOrDigit Spacing
+CONTINUE     = Indent "continue"     !LetterOrDigit Spacing
+DEFAULT      = Indent "default"      !LetterOrDigit Spacing
+DO           = Indent "do"           !LetterOrDigit Spacing
+ELSE         = Indent "else"         !LetterOrDigit Spacing
+ENUM         = Indent "enum"         !LetterOrDigit Spacing
+EXTENDS      = Indent "extends"      !LetterOrDigit Spacing
+FINALLY      = Indent "finally"      !LetterOrDigit Spacing
+FINAL        = Indent "final"        !LetterOrDigit Spacing
+FOR          = Indent "for"          !LetterOrDigit Spacing
+IF           = Indent "if"           !LetterOrDigit Spacing
+IMPLEMENTS   = Indent "implements"   !LetterOrDigit Spacing
+IMPORT       = Indent "import"       !LetterOrDigit Spacing
+INTERFACE    = Indent "interface"    !LetterOrDigit Spacing
+INSTANCEOF   = Indent "instanceof"   !LetterOrDigit Spacing
+NEW          = Indent "new"          !LetterOrDigit Spacing
+PACKAGE      = Indent "package"      !LetterOrDigit Spacing
+RETURN       = Indent "return"       !LetterOrDigit Spacing
+STATIC       = Indent "static"       !LetterOrDigit Spacing
+SUPER        = Indent "super"        !LetterOrDigit Spacing
+SWITCH       = Indent "switch"       !LetterOrDigit Spacing
+SYNCHRONIZED = Indent "synchronized" !LetterOrDigit Spacing
+THIS         = Indent "this"         !LetterOrDigit Spacing
+THROWS       = Indent "throws"       !LetterOrDigit Spacing
+THROW        = Indent "throw"        !LetterOrDigit Spacing
+TRY          = Indent "try"          !LetterOrDigit Spacing
+VOID         = Indent "void"         !LetterOrDigit Spacing
+WHILE        = Indent "while"        !LetterOrDigit Spacing
 
 //-------------------------------------------------------------------------
 //  JLS 3.10  Literals
