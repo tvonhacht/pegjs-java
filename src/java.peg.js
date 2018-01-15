@@ -1,5 +1,5 @@
 
-//===========================================================================
+//{ return { node: "javaDoc", ast_type: "comment", value: "/**" + comment.join("") + "*/", leading: false, trailing: true, printed: false }; }========================================================================
 //
 //  Parsing Expression Grammar of Java 1.7 for Mouse 1.1 - 1.6.
 //  Based on Java Language Specification, Java SE 7 Edition, dated 2012-07-27,
@@ -399,6 +399,22 @@
     });
   }
 
+  function leadingComments(comments) {
+    const leadComments = [];
+
+    for(var i = 0; i < comments.length; i++) {
+      leadComments.push({
+        ast_type: "comment",
+        value: comments[i].value,
+        leading: true,
+        trailing: false,
+        printed: false
+      });
+    }
+
+    return leadComments;
+  }
+
   function TODO() {
     throw new Error('TODO: not impl line ' + line() + '\n' + text());
   }
@@ -414,20 +430,21 @@ CompilationUnit
     = Spacing pack:PackageDeclaration? imports:ImportDeclaration* types:TypeDeclaration* EmptyLines EOT
     {
       return {
-        node:   'CompilationUnit',
-        types:   skipNulls(types),
-        package: pack,
-        imports: skipNulls(imports)
+        node:    'CompilationUnit',
+        types:    skipNulls(types),
+        package:  pack,
+        imports:  skipNulls(imports)
       };
     }
 
 PackageDeclaration
-    = EmptyLines annot:Annotation* PACKAGE name:QualifiedIdentifier SEMI
+    = EmptyLines leadComments:LeadingComments annot:Annotation* PACKAGE name:QualifiedIdentifier SEMI
     {
       return {
         node:       'PackageDeclaration',
         name:        name,
-        annotations: annot
+        annotations: annot,
+        comments:    leadComments
       };
     }
 
@@ -465,7 +482,7 @@ TypeDeclaration
 //-------------------------------------------------------------------------
 
 ClassDeclaration
-    = CLASS id:Identifier gen:TypeParameters? ext:(EXTENDS ClassType)? impl:(IMPLEMENTS ClassTypeList)? body:ClassBody
+    = leadComments:LeadingComments CLASS id:Identifier gen:TypeParameters? ext:(EXTENDS ClassType)? impl:(IMPLEMENTS ClassTypeList)? body:ClassBody
     {
       return {
         node:               'TypeDeclaration',
@@ -474,7 +491,8 @@ ClassDeclaration
         superclassType:      extractOptional(ext, 1),
         bodyDeclarations:    body,
         typeParameters:      optionalList(gen),
-        interface:           false
+        interface:           false,
+        comments:            leadComments
       };
     }
 
@@ -1729,25 +1747,32 @@ WhiteSpaces
 EmptyLines
     = Indent WhiteSpaces*
 
+LeadingComments
+    = commentStatements:CommentStatement*
+    { return leadingComments(commentStatements); }
+
 CommentStatement
     = commentStatement:(
-       JavaDocComment
-       / TraditionalComment
-       / EndOfLineComment 
+      comment:JavaDocComment [\r\n\u000C]*
+      { return comment; } 
+      / comment:TraditionalComment [\r\n\u000C]*
+      { return comment; }
+      / comment:EndOfLineComment [\r\n\u000C]*
+      { return comment; }
       )
     { return commentStatement; }
 
 JavaDocComment
     = "/**" comment:CommentLetter* "*/"
-    { return { node: "javaDoc", ast_type: "comment", value: "/**" + comment.join("") + "*/", leading: false, trailing: true, printed: false }; }
+    { return { value: "/**" + comment.join("") + "*/" }; }
 
 TraditionalComment
     = "/*" comment:CommentLetter* "*/"
-    { return { node: "trad", ast_type: "comment", value: "/*" + comment.join("") + "*/", leading: false, trailing: true, printed: false }; }
+    { return { value: "/*" + comment.join("") + "*/" }; }
 
 EndOfLineComment
     = "//" comment:CommentLetter* [\r\n\u000C]
-    { return { ast_type: "comment", value: "//" + comment.join(""), leading: false, trailing: true, printed: false }; }
+    { return { value: "//" + comment.join("") }; }
 
 CommentLetter = [ a-zA-Z0-9] ;
 
