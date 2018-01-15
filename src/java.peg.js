@@ -1763,12 +1763,15 @@ CommentStatement
     { return commentStatement; }
 
 JavaDocComment
-    = "/**" comment:CommentLetter* "*/"
+    = "/**" comment:MultilineCommentLetter* "*/" [\r\n\u000C]?
     { return { value: "/**" + comment.join("") + "*/" }; }
 
 TraditionalComment
-    = "/*" comment:CommentLetter* "*/"
+    = "/*" !("*"!"/") comment:MultilineCommentLetter* "*/" [\r\n\u000C]?
     { return { value: "/*" + comment.join("") + "*/" }; }
+
+MultilineCommentLetter = letter:(!"*/" _)
+    { return letter[1]; }
 
 EndOfLineComment
     = "//" comment:CommentLetter* [\r\n\u000C]
