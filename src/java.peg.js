@@ -2002,56 +2002,56 @@ UnicodeEscape
 //  JLS 3.11-12  Separators, Operators
 //-------------------------------------------------------------------------
 
-AT              =   "@"       Spacing
-AND             =   "&"![=&]  Spacing
-ANDAND          =   "&&"      Spacing
-ANDEQU          =   "&="      Spacing
-BANG            =   "!" !"="  Spacing
-BSR             =   ">>>"!"=" Spacing
-BSREQU          =   ">>>="    Spacing
-COLON           =   ":"       Spacing
-COMMA           =   ","       Spacing
-DEC             =   "--"      Spacing
-DIV             =   "/" !"="  Spacing
-DIVEQU          =   "/="      Spacing
-DOT             =   "."       Spacing
-ELLIPSIS        =   "..."     Spacing
-EQU             =   "=" !"="  Spacing
-EQUAL           =   "=="      Spacing
-GE              =   ">="      Spacing
-GT              =   ">"![=>]  Spacing
-HAT             =   "^"!"="   Spacing
-HATEQU          =   "^="      Spacing
-INC             =   "++"      Spacing
-LBRK            =   "["       Spacing
-LE              =   "<="      Spacing
-LPAR            =   "("       Spacing
-LPOINT          =   "<"       Spacing
-LT              =   "<"![=<]  Spacing
-LWING           =   "{"       Spacing
-MINUS           =   "-"![=\-] Spacing
-MINUSEQU        =   "-="      Spacing
-MOD             =   "%"!"="   Spacing
-MODEQU          =   "%="      Spacing
-NOTEQUAL        =   "!="      Spacing
-OR              =   "|"![=|]  Spacing
-OREQU           =   "|="      Spacing
-OROR            =   "||"      Spacing
-PLUS            =   "+"![=+]  Spacing
-PLUSEQU         =   "+="      Spacing
-QUERY           =   "?"       Spacing
-RBRK            =   "]"       Spacing
-RPAR            =   ")"       Spacing
-RPOINT          =   ">"       Spacing
-RWING           =   "}"       Spacing
-SEMI            =   ";"       Spacing
-SL              =   "<<"!"="  Spacing
-SLEQU           =   "<<="     Spacing
-SR              =   ">>"![=>] Spacing
-SREQU           =   ">>="     Spacing
-STAR            =   "*"!"="   Spacing
-STAREQU         =   "*="      Spacing
-TILDA           =   "~"       Spacing
+AT              =            "@"       Spacing
+AND             =            "&"![=&]  Spacing
+ANDAND          =            "&&"      Spacing
+ANDEQU          =            "&="      Spacing
+BANG            =            "!" !"="  Spacing
+BSR             =            ">>>"!"=" Spacing
+BSREQU          =            ">>>="    Spacing
+COLON           =            ":"       Spacing
+COMMA           =            ","       Spacing
+DEC             =            "--"      Spacing
+DIV             =            "/" !"="  Spacing
+DIVEQU          =            "/="      Spacing
+DOT             = EmptyLines "."       Spacing
+ELLIPSIS        =            "..."     Spacing
+EQU             =            "=" !"="  Spacing
+EQUAL           =            "=="      Spacing
+GE              =            ">="      Spacing
+GT              =            ">"![=>]  Spacing
+HAT             =            "^"!"="   Spacing
+HATEQU          =            "^="      Spacing
+INC             =            "++"      Spacing
+LBRK            =            "["       Spacing
+LE              =            "<="      Spacing
+LPAR            =            "("       Spacing
+LPOINT          =            "<"       Spacing
+LT              =            "<"![=<]  Spacing
+LWING           =            "{"       Spacing
+MINUS           =            "-"![=\-] Spacing
+MINUSEQU        =            "-="      Spacing
+MOD             =            "%"!"="   Spacing
+MODEQU          =            "%="      Spacing
+NOTEQUAL        =            "!="      Spacing
+OR              =            "|"![=|]  Spacing
+OREQU           =            "|="      Spacing
+OROR            =            "||"      Spacing
+PLUS            =            "+"![=+]  Spacing
+PLUSEQU         =            "+="      Spacing
+QUERY           =            "?"       Spacing
+RBRK            =            "]"       Spacing
+RPAR            =            ")"       Spacing
+RPOINT          =            ">"       Spacing
+RWING           =            "}"       Spacing
+SEMI            =            ";"       Spacing
+SL              =            "<<"!"="  Spacing
+SLEQU           =            "<<="     Spacing
+SR              =            ">>"![=>] Spacing
+SREQU           =            ">>="     Spacing
+STAR            =            "*"!"="   Spacing
+STAREQU         =            "*="      Spacing
+TILDA           =            "~"       Spacing
 
 EOT = !_ 
 
