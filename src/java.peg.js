@@ -485,7 +485,7 @@ TypeDeclaration
 //-------------------------------------------------------------------------
 
 ClassDeclaration
-    = CLASS id:Identifier gen:TypeParameters? ext:(EXTENDS ClassType)? impl:(IMPLEMENTS ClassTypeList)? body:ClassBody
+    = CLASS id:Identifier gen:TypeParameters? EmptyLines ext:(EXTENDS ClassType)? EmptyLines impl:(IMPLEMENTS ClassTypeList)? body:ClassBody
     {
       return {
         node:               'TypeDeclaration',
@@ -779,7 +779,7 @@ EnumConstants
     { return buildList(first, rest, 1); }
 
 EnumConstant
-    = EmptyLines Indent annot:Annotation* name:Identifier args:Arguments? cls:ClassBody?
+    = EmptyLines annot:Annotation* name:Identifier args:Arguments? cls:ClassBody?
     {
       return {
         node:                     'EnumConstantDeclaration',
@@ -1561,12 +1561,13 @@ ClassTypeList
     { return buildList(first, rest, 1); }
 
 TypeArguments
-    = LPOINT first:TypeArgument rest:(COMMA TypeArgument)* RPOINT
+    = LPOINT first:TypeArgument rest:(COMMA TypeArgument)* EmptyLines RPOINT
     { return buildList(first, rest, 1); }
 
 TypeArgument
-    = ReferenceType
-    / QUERY rest:((EXTENDS { return true; } / SUPER { return false; }) ReferenceType)?
+    = EmptyLines refType:ReferenceType
+    { return refType; }
+    / EmptyLines QUERY rest:((EXTENDS { return true; } / SUPER { return false; }) ReferenceType)?
     {
       return {
         node:      'WildcardType',
@@ -1576,11 +1577,11 @@ TypeArgument
     }
 
 TypeParameters
-    = LPOINT first:TypeParameter rest:(COMMA TypeParameter)* RPOINT
+    = LPOINT first:TypeParameter rest:(COMMA TypeParameter)* EmptyLines RPOINT
     { return buildList(first, rest, 1); }
 
 TypeParameter
-    = id:Identifier bounds:(EXTENDS Bound)?
+    = EmptyLines id:Identifier bounds:(EXTENDS Bound)?
     { 
       return {
         node:      'TypeParameter',
@@ -1755,7 +1756,7 @@ WhiteSpaces
     = [\r\n\u000C]
 
 EmptyLines
-    = Indent WhiteSpaces*
+    = [ \t\r\n\u000C]*
 
 LeadingComments
     = commentStatements:CommentStatement*
