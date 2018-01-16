@@ -466,14 +466,17 @@ ImportDeclaration
 
 TypeDeclaration
     = EmptyLines
+      leadComments:LeadingComments
+      EmptyLines
       modifiers:Modifier*
+      EmptyLines
       type:( 
           ClassDeclaration
         / EnumDeclaration
         / InterfaceDeclaration
         / AnnotationTypeDeclaration
       )
-      { return mergeProps(type, { modifiers: modifiers }); }
+      { return mergeProps(type, { modifiers: modifiers, comments: leadComments }); }
       / SEMI
       { return null; }
 
@@ -482,7 +485,7 @@ TypeDeclaration
 //-------------------------------------------------------------------------
 
 ClassDeclaration
-    = leadComments:LeadingComments CLASS id:Identifier gen:TypeParameters? ext:(EXTENDS ClassType)? impl:(IMPLEMENTS ClassTypeList)? body:ClassBody
+    = CLASS id:Identifier gen:TypeParameters? ext:(EXTENDS ClassType)? impl:(IMPLEMENTS ClassTypeList)? body:ClassBody
     {
       return {
         node:               'TypeDeclaration',
@@ -491,8 +494,7 @@ ClassDeclaration
         superclassType:      extractOptional(ext, 1),
         bodyDeclarations:    body,
         typeParameters:      optionalList(gen),
-        interface:           false,
-        comments:            leadComments
+        interface:           false
       };
     }
 
@@ -646,14 +648,22 @@ InterfaceDeclaration
     }
 
 InterfaceBody
-    = LWING decls:InterfaceBodyDeclaration* RWING
+    = LWING decls:InterfaceBodyDeclaration* Indent RWING
     { return skipNulls(decls); }
 
 InterfaceBodyDeclaration
-    = modifiers:Modifier* member:InterfaceMemberDecl
+    = Indent modifiers:Modifier* member:InterfaceMemberDecl
     { return mergeProps(member, { modifiers: modifiers }); }
-    / SEMI
+    / Indent SEMI
     { return null; }
+    / Indent comment:EndOfLineComment
+    { return { node: "EndOfLineComment", comment: comment.value }; }
+    / Indent comment:TraditionalComment
+    { return { node: "TraditionalComment", comment: comment.value }; }
+    / Indent comment:JavaDocComment
+    { return { node: "JavaDocComment", comment: comment.value }; }
+    / Indent !LetterOrDigit [\r\n\u000C]
+    { return { node: "LineEmpty" }; }
 
 InterfaceMemberDecl
     = InterfaceMethodOrFieldDecl
@@ -1777,7 +1787,9 @@ EndOfLineComment
     = "//" comment:CommentLetter* [\r\n\u000C]
     { return { value: "//" + comment.join("") }; }
 
-CommentLetter = [ a-zA-Z0-9] ;
+CommentLetter
+    = letter:(![\r\n\u000C] _)
+    { return letter[1]; }
 
 //-------------------------------------------------------------------------
 //  JLS 3.8  Identifiers
