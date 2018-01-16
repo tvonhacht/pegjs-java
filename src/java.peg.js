@@ -833,7 +833,7 @@ VariableDeclarator
 //-------------------------------------------------------------------------
 
 FormalParameters
-    = LPAR params:FormalParameterList? RPAR
+    = LPAR params:FormalParameterList? EmptyLines RPAR
     { return optionalList(params); }
 
 FormalParameter
@@ -1445,7 +1445,7 @@ PrimitiveType
     = BasicType
 
 Arguments
-    = LPAR args:(first:Expression rest:(COMMA Expression)* { return buildList(first, rest, 1); })? RPAR
+    = LPAR args:(first:Expression rest:(COMMA Expression)* { return buildList(first, rest, 1); })? EmptyLines RPAR
     { return optionalList(args); }
 
 Creator
@@ -1516,7 +1516,7 @@ ArrayInitializer
         first:VariableInitializer rest:(COMMA VariableInitializer)* 
         { return buildList(first, rest, 1); }
       )? 
-      COMMA?  RWING
+      COMMA? EmptyLines  RWING
     { return { node: 'ArrayInitializer', expressions: optionalList(init) }; }
 
 VariableInitializer
@@ -1553,7 +1553,7 @@ ReferenceType
     { return buildArrayTree(cls, dims); }
 
 ClassType
-    = qual:QualifiedIdentifier args:TypeArguments? rest:(DOT Identifier TypeArguments?)*
+    = EmptyLines qual:QualifiedIdentifier args:TypeArguments? rest:(DOT Identifier TypeArguments?)*
     { return buildTypeName(qual, args, rest); }
 
 ClassTypeList
@@ -1912,7 +1912,7 @@ WHILE        = Indent "while"        !LetterOrDigit Spacing
 //-------------------------------------------------------------------------
 
 Literal
-    = literal:( FloatLiteral
+    = EmptyLines literal:( FloatLiteral
       / IntegerLiteral          // May be a prefix of FloatLiteral
       / CharLiteral
       / StringLiteral
