@@ -485,7 +485,7 @@ TypeDeclaration
 //-------------------------------------------------------------------------
 
 ClassDeclaration
-    = CLASS id:Identifier gen:TypeParameters? EmptyLines ext:(EXTENDS ClassType)? EmptyLines impl:(IMPLEMENTS ClassTypeList)? body:ClassBody
+    = CLASS id:Identifier EmptyLines gen:TypeParameters? EmptyLines ext:(EXTENDS ClassType)? EmptyLines impl:(IMPLEMENTS ClassTypeList)? EmptyLines body:ClassBody
     {
       return {
         node:               'TypeDeclaration',
@@ -1587,8 +1587,9 @@ TypeParameter
         node:      'TypeParameter',
         name:       id,
         typeBounds: extractOptionalList(bounds, 1)
-      }
+      };
     }
+    / EmptyLines QUERY { return { node: 'WildcardType' }; }
 
 Bound
     = first:ClassType rest:(AND ClassType)*
