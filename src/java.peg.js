@@ -118,6 +118,7 @@
 //    2018-01-13 Added empty generics on instance creation.
 //    2018-01-14 Added comments inside classes
 //    2018-01-14 Added empty lines inside classes
+//    2018-01-17 Added method references as parameter
 //
 //===========================================================================
 
@@ -1110,7 +1111,15 @@ Expression
         leftHandSide:  left,
         rightHandSide: right
       };
-    } 
+    }
+    / left:Identifier COLONCOLON right:(Identifier / NEW { return { node: "SimpleName", identifier: "new" }; })
+    {
+      return {
+        node: 'MethodReference',
+        class: left,
+        method: right
+      };
+    }
     / ConditionalExpression
 
     // This definition is part of the modification in JLS Chapter 18
@@ -2010,7 +2019,8 @@ ANDEQU          =            "&="      Spacing
 BANG            =            "!" !"="  Spacing
 BSR             =            ">>>"!"=" Spacing
 BSREQU          =            ">>>="    Spacing
-COLON           =            ":"       Spacing
+COLON           =            ":" !":"  Spacing
+COLONCOLON      =            "::"      Spacing
 COMMA           =            ","       Spacing
 DEC             =            "--"      Spacing
 DIV             =            "/" !"="  Spacing
