@@ -1018,7 +1018,7 @@ Resource
 
 Catch
     = CATCH LPAR modifiers:(FINAL { return makeModifier('final'); } / Annotation)* 
-      first:Type rest:(OR Type)* decl:VariableDeclaratorId RPAR body:Block
+      first:Type rest:(OR Type)* decl:VariableDeclaratorId EmptyLines RPAR body:Block
     {
       return {
         node:       'CatchClause',
