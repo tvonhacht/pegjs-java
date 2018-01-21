@@ -119,6 +119,7 @@
 //    2018-01-14 Added comments inside classes
 //    2018-01-14 Added empty lines inside classes
 //    2018-01-17 Added method references as parameter
+//    2018-01-21 Added lambda expression
 //
 //===========================================================================
 
@@ -1120,7 +1121,36 @@ Expression
         method: right
       };
     }
+    / LambdaExpression
     / ConditionalExpression
+
+LambdaExpression
+    = args:Arguments POINTER body:LambdaBody
+    {
+      return {
+        node: 'LambdaExpression',
+        args: args,
+        body: body
+      };
+    }
+    / id:Identifier POINTER body:LambdaBody
+    {
+      return {
+        node: 'LambdaExpression',
+        args: [id],
+        body: body
+      };
+    }
+LambdaBody
+    = body:MethodBody
+    { return body; }
+    / statement:StatementExpression
+    {
+      return {
+        node:      'Block',
+        statements: [statement]
+      }
+    }
 
     // This definition is part of the modification in JLS Chapter 18
     // to minimize look ahead. In JLS Chapter 15.27, Expression is defined
@@ -2050,6 +2080,7 @@ OREQU           =            "|="      Spacing
 OROR            =            "||"      Spacing
 PLUS            =            "+"![=+]  Spacing
 PLUSEQU         =            "+="      Spacing
+POINTER         =            "->"      Spacing
 QUERY           =            "?"       Spacing
 RBRK            =            "]"       Spacing
 RPAR            =            ")"       Spacing
